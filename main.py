@@ -1,6 +1,7 @@
 import pygame
 from logger import log_state
 from player import Player
+from asteroid import Asteroid
 from constants import (SCREEN_HEIGHT, 
                        SCREEN_WIDTH,)
 
@@ -12,7 +13,9 @@ def main():
     
     updatable = pygame.sprite.Group()
     drawable = pygame.sprite.Group()
+    astroids = pygame.sprite.Group()
     Player.containers = (updatable, drawable)
+    Asteroid.containers = (astroids, updatable, drawable)
 
     player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
 
