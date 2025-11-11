@@ -29,11 +29,11 @@ class Player(CircleShape):
         self.rotation += PLAYER_TURN_SPEED * dt
 
     def move(self, dt: float) -> None:
-        forward = pygame.Vector2(0, 1).rotate(self.rotation)
+        forward = pygame.Vector2(0, 1)
         self.position += forward * PLAYER_SPEED * dt
 
     def strafe(self, dt: float) -> None:
-        right = pygame.Vector2(0, 1).rotate(self.rotation + 90)
+        right = pygame.Vector2(1, 0)
         self.position += right * PLAYER_SPEED * dt
 
     def shoot(self) -> None:
@@ -44,19 +44,20 @@ class Player(CircleShape):
         keys = pygame.key.get_pressed()
         self.shot_cooldown_timer -= dt
 
+        click = pygame.mouse.get_pressed()
         mouse_x, mouse_y = pygame.mouse.get_pos()
         dircection = pygame.Vector2(mouse_x, mouse_y) - self.position
         self.rotation = -math.degrees(math.atan2(dircection.x, dircection.y))
 
         if keys[pygame.K_a]:
-            self.strafe(dt)
-        if keys[pygame.K_d]:
             self.strafe(dt * (-1))
+        if keys[pygame.K_d]:
+            self.strafe(dt)
         if keys[pygame.K_w]:
             self.move(dt * (-1))
         if keys[pygame.K_s]:
             self.move(dt)
-        if keys[pygame.K_SPACE]:
+        if click[0]:
             if self.shot_cooldown_timer < 0:
                 self.shoot()
                 self.shot_cooldown_timer = PLAYER_SHOOT_COOLDOWN
