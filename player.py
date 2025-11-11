@@ -1,4 +1,5 @@
 import pygame
+import math
 from shot import Shot
 from circleshape import CircleShape
 from constants import (PLAYER_RADIUS, 
@@ -13,7 +14,7 @@ class Player(CircleShape):
         self.rotation = 0
         self.shot_cooldown_timer = 0
 
-    def triangle(self):
+    def triangle(self) -> list[pygame.Vector2]:
         forward = pygame.Vector2(0, 1).rotate(self.rotation)
         right = pygame.Vector2(0, 1).rotate(self.rotation + 90) * self.radius / 1.5
         a = self.position + forward * self.radius
@@ -21,32 +22,40 @@ class Player(CircleShape):
         c = self.position - forward * self.radius + right
         return [a, b, c]
     
-    def draw(self, screen):
+    def draw(self, screen) -> None:
         pygame.draw.polygon(screen, "white", self.triangle(), 2)
 
-    def rotate(self, dt):
+    def rotate(self, dt: float) -> None:
         self.rotation += PLAYER_TURN_SPEED * dt
 
-    def move(self, dt):
+    def move(self, dt: float) -> None:
         forward = pygame.Vector2(0, 1).rotate(self.rotation)
         self.position += forward * PLAYER_SPEED * dt
 
-    def shoot(self):
+    def strafe(self, dt: float) -> None:
+        right = pygame.Vector2(0, 1).rotate(self.rotation + 90)
+        self.position += right * PLAYER_SPEED * dt
+
+    def shoot(self) -> None:
         shot = Shot(self.position.x, self.position.y)
         shot.velocity = pygame.Vector2(0, 1).rotate(self.rotation) * PLAYER_SHOOT_SPEED 
 
-    def update(self, dt):
+    def update(self, dt: float) -> None:
         keys = pygame.key.get_pressed()
         self.shot_cooldown_timer -= dt
 
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        dircection = pygame.Vector2(mouse_x, mouse_y) - self.position
+        self.rotation = -math.degrees(math.atan2(dircection.x, dircection.y))
+
         if keys[pygame.K_a]:
-            self.rotate(dt * (-1))
+            self.strafe(dt)
         if keys[pygame.K_d]:
-            self.rotate(dt)
+            self.strafe(dt * (-1))
         if keys[pygame.K_w]:
-            self.move(dt)
-        if keys[pygame.K_s]:
             self.move(dt * (-1))
+        if keys[pygame.K_s]:
+            self.move(dt)
         if keys[pygame.K_SPACE]:
             if self.shot_cooldown_timer < 0:
                 self.shoot()
